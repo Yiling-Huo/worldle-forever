@@ -119,7 +119,7 @@ def main():
     clock = pygame.time.Clock()
     icon = pygame.image.load('assets/icon.png')
     pygame.display.set_icon(icon)
-    pygame.display.set_caption('Know Your Place')
+    pygame.display.set_caption('Worldle Forever')
     screen.fill(lavender)
 
     ##########
