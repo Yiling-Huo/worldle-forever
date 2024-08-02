@@ -3,6 +3,7 @@ import pygame, os, csv, random, unidecode
 ##########
 # Appearances
 ##########
+
 window_width = 1400
 window_height = 900
 
@@ -17,7 +18,7 @@ space = '#192a51'
 ##########
 
 class Text_button:
-    def __init__(self, text, pos, center=False, small=False):
+    def __init__(self, text, pos, center=False, small=False, options=False):
         # split lines if too long
         words = text.split(" ")
         self.lines = [" ".join(words[:4]), " ".join(words[4:])] if len(words) >= 4 else [text]
@@ -25,11 +26,15 @@ class Text_button:
         self.pos = pos
         self.center=center
         self.small=small
+        self.options=options
         self.hovered = False
 
     def draw(self, screen):
         pygame.draw.rect(screen,lavender,pygame.Rect(self.pos,(700,80)),border_radius = 3)
-        color = mountbatten if self.hovered else space
+        if self.options:
+            color = mountbatten if self.hovered else quartz
+        else:
+            color = mountbatten if self.hovered else space
         surf = [button_font_small.render(line,True,color) if self.small else button_font.render(line,True,color) for line in self.lines]
         rect = [surf[i].get_rect(center = tuple(map(lambda i, j: i + j, self.pos, (0, i*35)))) if self.center else surf[i].get_rect(topleft = tuple(map(lambda i, j: i + j, self.pos, (0, i*35)))) for i in range(len(surf))]
         for i in range(len(surf)):
@@ -96,19 +101,19 @@ def select(selected_button):
     input = ''
     wipe()
 
-
 def wipe_selection():
     global buttons, selected_button
     buttons = []
     selected_button = 0
 
-
 ##########
 # Main function
 ##########
+
 def main():
     global screen, button_font, button_font_small, text_font_small
     global started, reached_end, correct, wrong, buttons, pic, response, selected_button, input, options
+
     ##########
     # Initialise
     ##########
@@ -133,6 +138,9 @@ def main():
     button_font = pygame.font.Font('assets/joystix-monospace.otf',28)
     button_font_small = pygame.font.Font('assets/joystix-monospace.otf',22)
 
+    ##########
+    # Game resources
+    ##########
     # get dictionaries
     with open('assets/codes.csv', 'r', encoding='utf-8') as codes_input:
         cr = csv.reader(codes_input)
@@ -160,28 +168,34 @@ def main():
             countries.remove(item)
 
     ##########
-    # Main game logic
+    # Parameter defaults
     ##########
-
     started = False
     reached_end = False
     correct = False
     wrong = False
     running = True
+    options = []
+    input=''
+    response = ''
     selected_button = 0
     buttons = [Text_button("start", (700, 550), center=True), Text_button("quit", (700, 650), center=True)]
     buttons[selected_button].hovered = True  # First button is hovered by default
     pic = 'assets/pics/AD.png'
-    input=''
-    options = []
-    response = ''
 
+    ##########
+    # Main loop
+    ##########
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
+                # if esc key pressed, quit the game
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                # up and down keys to iterate between buttons
+                elif event.key == pygame.K_DOWN:
                     buttons[selected_button].hovered = False
                     selected_button = (selected_button + 1) % len(buttons)
                     buttons[selected_button].hovered = True
@@ -189,6 +203,7 @@ def main():
                     buttons[selected_button].hovered = False
                     selected_button = (selected_button - 1) % len(buttons)
                     buttons[selected_button].hovered = True
+                # return key to start the game if outside game, or select options if in game
                 elif event.key == pygame.K_RETURN:
                     if reached_end or not started:
                         if selected_button == 0:
@@ -197,6 +212,7 @@ def main():
                             running = False
                     else:
                         select(selected_button)
+                # handle player input
                 elif event.key == pygame.K_BACKSPACE:
                     if not reached_end:
                         input = input[:-1]
@@ -204,7 +220,7 @@ def main():
                         options = get_choices(input, types)
                         buttons = []
                         for i in range(len(options)):
-                            buttons.append(Text_button(countries[options[i]], (750, 400+i*80), small = True))
+                            buttons.append(Text_button(countries[options[i]], (750, 330+i*80), small = True, options=True))
                         selected_button = 0
                         if len(buttons)>0: 
                             buttons[selected_button].hovered = True # First button is hovered by default 
@@ -216,15 +232,16 @@ def main():
                         options = get_choices(input, types)
                         buttons = []
                         for i in range(len(options)):
-                            buttons.append(Text_button(countries[options[i]], (750, 400+i*80), small = True))
+                            buttons.append(Text_button(countries[options[i]], (750, 330+i*80), small = True, options=True))
                         selected_button = 0
                         if len(buttons)>0:
                             buttons[selected_button].hovered = True # First button is hovered by default
                         wipe()
         
+        # draw elements
         if not started:
             message1 = title_font.render('Worldle Forever', True, space)
-            message2 = text_font_small.render("Guess the country/region based on the silhouette!", True, space)
+            message2 = text_font_small.render("Guess the country/territory based on the silhouette!", True, space)
             message3 = text_font_smaller.render("maps by Mazarin @djaiss", True, mountbatten)
             message4 = text_font_smaller.render("The maps were not created by me, and any inaccuracies are the responsibility of the original creator.", True, mountbatten)
             screen.blit(message1, message1.get_rect(center = (700, 280)))
@@ -233,7 +250,7 @@ def main():
             screen.blit(message4, message4.get_rect(topleft = (100, 865)))
         elif reached_end:
             picture = pygame.image.load(pic)
-            screen.blit(picture, (94,175))
+            screen.blit(picture, (94,160))
             if correct: 
                 message1 = text_font.render('Correct!', True, space)
             else:
@@ -247,7 +264,7 @@ def main():
             screen.blit(message4, message4.get_rect(center = (1000, 650)))
         else:
             picture = pygame.image.load(pic)
-            screen.blit(picture, (94,175))
+            screen.blit(picture, (94,160))
             message1 = text_font_small.render('Attempts left:'+str(attempts), True, space)
             screen.blit(message1, message1.get_rect(topleft = (1000, 65)))
             message2 = text_font_small.render('type your answer: ', True, space)
@@ -259,9 +276,8 @@ def main():
                 screen.blit(message4, message4.get_rect(topleft = (100, 730)))
                 message5 = text_font_small.render('You guessed: '+countries[response], True, space)
                 screen.blit(message5, message5.get_rect(topleft = (100, 780)))
-                message4 = text_font_small.render('Distance from answer:'+str(distances[response][answer])+'km', True, space)
-                screen.blit(message4, message4.get_rect(topleft = (900, 780)))
-
+                message4 = text_font_small.render('Distance from answer: '+str(distances[response][answer])+'km', True, space)
+                screen.blit(message4, message4.get_rect(topleft = (820, 730)))
 
         for i, button in enumerate(buttons):
             if not any(pygame.key.get_pressed()):
@@ -271,6 +287,8 @@ def main():
 
         pygame.display.flip()
         clock.tick(60)
+    
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
