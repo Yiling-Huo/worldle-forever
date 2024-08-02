@@ -1,6 +1,6 @@
-# Know Your Place
+# Worldle Forever
 
-A game where you guess the country/region based on the silhouette.
+A worldle-like game where you guess the country/region based on the silhouette.
 
 Maps taken from: https://github.com/djaiss/mapsicon.
 

@@ -1,5 +1,7 @@
 import difflib, csv
-from unidecode import unidecode
+import unidecode
+
+print(unidecode.__file__)
 
 def autofill_suggestions(user_input, term_pool, num_suggestions=3):
     # Normalize user input and term pool to ASCII
