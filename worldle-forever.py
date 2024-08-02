@@ -1,4 +1,5 @@
-import pygame, os, csv, random, unidecode
+import pygame, os, csv, random
+from unidecode import unidecode
 
 ##########
 # Appearances
@@ -75,10 +76,10 @@ def init_trial(countries):
 # match player input with the first four countries starting with that name
 def get_choices(prefix, dictionary):
     # Normalize the prefix and items to ASCII
-    normalized_prefix = unidecode.unidecode(prefix).lower()
+    normalized_prefix = unidecode(prefix).lower()
     
     # Find all items that start with the normalized prefix and return the first four values in the dictionary
-    matching_items = [item for item in dictionary.keys() if unidecode.unidecode(item).lower().startswith(normalized_prefix)]
+    matching_items = [item for item in dictionary.keys() if unidecode(item).lower().startswith(normalized_prefix)]
     values = [dictionary[key] for key in matching_items]
     
     return values[:4]
