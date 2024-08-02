@@ -1,5 +1,4 @@
-import pygame, os, csv, random
-from unidecode import unidecode
+import pygame, os, csv, random, unidecode
 
 ##########
 # Appearances
@@ -71,10 +70,10 @@ def init_trial(countries):
 # match player input with the first four countries starting with that name
 def get_choices(prefix, dictionary):
     # Normalize the prefix and items to ASCII
-    normalized_prefix = unidecode(prefix).lower()
+    normalized_prefix = unidecode.unidecode(prefix).lower()
     
     # Find all items that start with the normalized prefix and return the first four values in the dictionary
-    matching_items = [item for item in dictionary.keys() if unidecode(item).lower().startswith(normalized_prefix)]
+    matching_items = [item for item in dictionary.keys() if unidecode.unidecode(item).lower().startswith(normalized_prefix)]
     values = [dictionary[key] for key in matching_items]
     
     return values[:4]
@@ -129,7 +128,7 @@ def main():
     # text fonts
     text_font_smaller = pygame.font.Font('assets/joystix-monospace.otf',15)
     text_font_small = pygame.font.Font('assets/joystix-monospace.otf',20)
-    text_font = pygame.font.Font('assets/joystix-monospace.otf',24)
+    text_font = pygame.font.Font('assets/joystix-monospace.otf',30)
     title_font = pygame.font.Font('assets/joystix-monospace.otf',50)
     button_font = pygame.font.Font('assets/joystix-monospace.otf',28)
     button_font_small = pygame.font.Font('assets/joystix-monospace.otf',22)
@@ -199,27 +198,29 @@ def main():
                     else:
                         select(selected_button)
                 elif event.key == pygame.K_BACKSPACE:
-                    input = input[:-1]
-                    wipe()
-                    options = get_choices(input, types)
-                    buttons = []
-                    for i in range(len(options)):
-                        buttons.append(Text_button(countries[options[i]], (750, 400+i*80), small = True))
-                    selected_button = 0
-                    if len(buttons)>0: 
-                        buttons[selected_button].hovered = True # First button is hovered by default 
-                    wipe()
+                    if not reached_end:
+                        input = input[:-1]
+                        wipe()
+                        options = get_choices(input, types)
+                        buttons = []
+                        for i in range(len(options)):
+                            buttons.append(Text_button(countries[options[i]], (750, 400+i*80), small = True))
+                        selected_button = 0
+                        if len(buttons)>0: 
+                            buttons[selected_button].hovered = True # First button is hovered by default 
+                        wipe()
                 else:
-                    input += event.unicode
-                    wipe()
-                    options = get_choices(input, types)
-                    buttons = []
-                    for i in range(len(options)):
-                        buttons.append(Text_button(countries[options[i]], (750, 400+i*80), small = True))
-                    selected_button = 0
-                    if len(buttons)>0:
-                        buttons[selected_button].hovered = True # First button is hovered by default
-                    wipe()
+                    if not reached_end:
+                        input += event.unicode
+                        wipe()
+                        options = get_choices(input, types)
+                        buttons = []
+                        for i in range(len(options)):
+                            buttons.append(Text_button(countries[options[i]], (750, 400+i*80), small = True))
+                        selected_button = 0
+                        if len(buttons)>0:
+                            buttons[selected_button].hovered = True # First button is hovered by default
+                        wipe()
         
         if not started:
             message1 = title_font.render('Worldle Forever', True, space)
