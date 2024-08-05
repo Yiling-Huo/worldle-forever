@@ -71,7 +71,7 @@ def init_trial(countries):
     # try again if picture doesn't exist
     if not os.path.isfile(pic):
         init_trial(countries)
-    # print(countries[answer])
+    print(countries[answer])
 
 # match player input with the first four countries starting with that name
 def get_choices(prefix, dictionary):
@@ -142,7 +142,7 @@ def main():
     ##########
     # Game resources
     ##########
-    # get dictionaries
+    # get country code
     with open('assets/codes.csv', 'r', encoding='utf-8') as codes_input:
         cr = csv.reader(codes_input)
         countries = {}
@@ -150,6 +150,17 @@ def main():
         for line in cr:
             countries[line[1]] = line[0].replace('\ufeff', '')
             types[line[0].replace('\ufeff', '').replace("The ", "")] = line[1]
+    
+    # get scale
+    with open('assets/countries_scales.csv', 'r') as scale_input:
+        cr = csv.reader(scale_input)
+        scales = {}
+        first = True
+        for line in cr:
+            if first:
+                first = False
+            else:
+                scales[line[0]] = [line[5], int(float(line[6]))]
     
     # get distance dictionary
     with open('assets/distances.csv', 'r') as dis_input:
@@ -163,9 +174,11 @@ def main():
             else:
                 distances[line[0]] = {k:int(float(line[kkeys.index(k)+1])) for k in kkeys}
 
-    # I dont think there's a missing country in the distances dictionary, but let's do this just in case. Remove country form country list if there's no distance info for it
+    # I dont think there's a missing country in the distances dictionary, but let's do this just in case. Remove country form country list if there's no distance or scale info for it
     for item in countries.keys():
         if item not in distances:
+            countries.remove(item)
+        elif item not in scales:
             countries.remove(item)
 
     ##########
@@ -243,15 +256,17 @@ def main():
         if not started:
             message1 = title_font.render('Worldle Forever', True, space)
             message2 = text_font_small.render("Guess the country/territory based on the silhouette!", True, space)
-            message3 = text_font_smaller.render("maps by Mazarin @djaiss", True, mountbatten)
+            message3 = text_font_small.render("maps by Mazarin @djaiss", True, mountbatten)
             message4 = text_font_smaller.render("The maps were not created by me, and any inaccuracies are the responsibility of the original creator.", True, mountbatten)
+            message5 = text_font_small.render("Scales are approximates.", True, mountbatten)
             screen.blit(message1, message1.get_rect(center = (700, 280)))
             screen.blit(message2, message2.get_rect(center = (700, 380)))
-            screen.blit(message3, message3.get_rect(topleft = (100, 850)))
+            screen.blit(message3, message3.get_rect(topleft = (100, 845)))
             screen.blit(message4, message4.get_rect(topleft = (100, 865)))
+            screen.blit(message5, message5.get_rect(topleft = (100,800)))
         elif reached_end:
             picture = pygame.image.load(pic)
-            screen.blit(picture, (94,160))
+            screen.blit(picture, (95,160))
             if correct: 
                 message1 = text_font.render('Correct!', True, space)
             else:
@@ -265,19 +280,32 @@ def main():
             screen.blit(message4, message4.get_rect(center = (1000, 650)))
         else:
             picture = pygame.image.load(pic)
-            screen.blit(picture, (94,160))
+            screen.blit(picture, (95,160))
             message1 = text_font_small.render('Attempts left:'+str(attempts), True, space)
             screen.blit(message1, message1.get_rect(topleft = (1000, 65)))
             message2 = text_font_small.render('type your answer: ', True, space)
             screen.blit(message2, message2.get_rect(topleft = (710, 200)))
             message3 = text_font_small.render(input, True, space)
             screen.blit(message3, message3.get_rect(topleft = (710, 260)))
+            # draw scale
+            if scales[answer][0] == 'lat':
+                pygame.draw.rect(screen, space, pygame.Rect(65, 160, 10, 2))
+                pygame.draw.rect(screen, space, pygame.Rect(65, 160, 2, 102.4))
+                pygame.draw.rect(screen, space, pygame.Rect(65, 262.4, 10, 2))
+                scale = text_font_smaller.render(str(scales[answer][1]/5)+' km', True, space)
+                screen.blit(scale, scale.get_rect(topleft = (65, 142)))
+            else:
+                pygame.draw.rect(screen, space, pygame.Rect(94, 130, 2, 10))
+                pygame.draw.rect(screen, space, pygame.Rect(94, 130, 102.4, 2))
+                pygame.draw.rect(screen, space, pygame.Rect(196.4, 130, 2, 10))
+                scale = text_font_smaller.render(str(scales[answer][1]/5)+' km', True, space)
+                screen.blit(scale, scale.get_rect(topleft = (94, 112)))
             if wrong:
                 message4 = text_font_small.render('Not there yet...', True, space)
                 screen.blit(message4, message4.get_rect(topleft = (100, 730)))
                 message5 = text_font_small.render('You guessed: '+countries[response], True, space)
                 screen.blit(message5, message5.get_rect(topleft = (100, 780)))
-                message4 = text_font_small.render('Distance from answer: '+str(distances[response][answer])+'km', True, space)
+                message4 = text_font_small.render('Distance from answer: '+str(distances[response][answer])+' km', True, space)
                 screen.blit(message4, message4.get_rect(topleft = (820, 730)))
 
         for i, button in enumerate(buttons):
