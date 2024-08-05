@@ -228,7 +228,7 @@ def main():
                         select(selected_button)
                 # handle player input
                 elif event.key == pygame.K_BACKSPACE:
-                    if not reached_end:
+                    if started and not reached_end:
                         input = input[:-1]
                         wipe()
                         options = get_choices(input, types)
@@ -240,7 +240,7 @@ def main():
                             buttons[selected_button].hovered = True # First button is hovered by default 
                         wipe()
                 else:
-                    if not reached_end:
+                    if started and not reached_end:
                         input += event.unicode
                         wipe()
                         options = get_choices(input, types)
