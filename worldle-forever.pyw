@@ -71,7 +71,7 @@ def init_trial(countries):
     # try again if picture doesn't exist
     if not os.path.isfile(pic):
         init_trial(countries)
-    print(countries[answer])
+    # print(countries[answer])
 
 # match player input with the first four countries starting with that name
 def get_choices(prefix, dictionary):
