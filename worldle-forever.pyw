@@ -274,10 +274,12 @@ def main():
             message2 = text_font_small.render('This is: ', True, space)
             message3 = text_font_small.render(countries[answer], True, space)
             message4 = text_font_small.render('Press Enter to get a new one.', True, space)
+            message5 = text_font_small.render('Attemps used: '+str(5-attempts)+'/5', True, space)
             screen.blit(message1, message1.get_rect(center = (1000, 250)))
             screen.blit(message2, message2.get_rect(topleft = (710, 400)))
             screen.blit(message3, message3.get_rect(center = (1000, 450)))
             screen.blit(message4, message4.get_rect(center = (1000, 650)))
+            screen.blit(message5, message5.get_rect(center = (1000, 550)))
         else:
             picture = pygame.image.load(pic)
             screen.blit(picture, (95,160))
