@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+# py -m PyInstaller worldle-forever.spec
 
 a = Analysis(
     ['worldle-forever.py'],
